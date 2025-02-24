@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, FlatList, Alert } from 'react-native';
-import { List, Card, Button } from "react-native-paper"
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
+import { Button } from "react-native-paper"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // 可复用的表单项组件
@@ -61,9 +61,6 @@ const Remove = () => {
             </TouchableOpacity>
         </View>
     );
-    function productScreen() {
-        Alert.alert('扫码正在开发中。。。')
-    }
     return (
         <ScrollView style={styles.container}>
             <FormRow

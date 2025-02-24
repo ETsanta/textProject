@@ -1,9 +1,11 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { PersistGate } from 'redux-persist/integration/react'
 import { Provider } from 'react-redux'
-import { store } from './src/store/index'
+import { store, persistor } from './src/store/index'
 import SelfScreen from "./src/layouts/SelfScreen";
 import BottomTabNavigator from "./src/navigation/BottomTabNavigator";
 import Qualified from "./src/app/home/Qualified";
@@ -16,14 +18,13 @@ import About from "./src/app/three/About";
 import Help from "./src/app/three/Help";
 
 
-
 //初始化基础路由
 const Stack = createStackNavigator(); //基础路由
-const Tab = createBottomTabNavigator();
 
 export default function App(): React.JSX.Element {
   return (
     <Provider store={store}>
+      <PersistGate loading={<Text>加载持久数据...</Text>} persistor={persistor}>
       <NavigationContainer>
         <Stack.Navigator mode="modal">
           <Stack.Screen name="Home" options={{ title: '主体', headerShown: false }} component={BottomTabNavigator} />
@@ -39,6 +40,7 @@ export default function App(): React.JSX.Element {
           <Stack.Screen name="Help" options={{ title: '帮助' }} component={Help} />
         </Stack.Navigator>
       </NavigationContainer>
+      </PersistGate>
     </Provider>
   );
 }

@@ -16,7 +16,7 @@ export const setSlice = createSlice({
       state.clean = action.payload.clean;
     },
     toPath: (state, action) => {
-      state.path = action.payload.path
+      state.path = action.payload.path?action.payload.path:state.path;
     }
   }
 })

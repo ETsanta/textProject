@@ -1,14 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Children } from 'react';
 import {
     Pressable,
-    TouchableOpacity,
     StyleSheet,
     Text,
     FlatList,
     View,
 } from 'react-native';
-import { toClean } from '../../store/slices/setSlice';
-import { Button } from 'react-native-paper';
+import { useSelector, useDispatch } from 'react-redux'
+import { increment, decrement, reset, incrementByAmount } from '../../store/slices/counter'
+import { toPath, toClean } from "../../store/slices/setSlice"
+import { Button, Switch } from "react-native-paper"
+
 
 const ContextView = ({ children }) => (
     <Pressable
@@ -21,29 +23,75 @@ const ContextView = ({ children }) => (
     </Pressable>
 );
 
+const FormRow: any = ({ children, label, onButtonPress, }) => {
+    return (
+        <View style={styles.rowContainer}>
+            <Text style={styles.label}>{label}</Text>
+            {children}
+        </View>
+    );
+};
+
+
 export default function Config() {
-    const [configData, setProductList] = useState([])
+    const [formData, setFormData] = useState({
+        clear: true,
+        show: false,
+    });
+    const count = useSelector(state => state.counter.counter.value)
+    const dispatch = useDispatch()
+    
+    const onClearSwitch = () => {
+        setFormData(prev => {
+            console.log(prev);
+            const newData = { ...prev, clear: !prev.clear };
+            console.log('更新过程:', newData.clear);
+            return newData;
+        });
+        console.log(formData.clear);
+    };
+    const onShowSwitch = () => {
+        setFormData(prev => ({
+            ...prev,
+            clear: !prev.show // 直接基于最新状态操作
+        }));
+    };
+    const [configData, setProductList] = useState([
+        {
+            title: '自动清除',
+            label: 'formData.clear',
+            func: onClearSwitch,
+        },
+        {
+            title: '是否为PDA',
+            label: 'formData.show',
+            func: onShowSwitch,
+        }
+    ])
     const renderItem = ({ item, index }) => (
-        <ContextView><Text>{index}</Text></ContextView>
+        <FormRow
+            label={item.title}
+        ><Switch value={item.label} onValueChange={item.func}></Switch></FormRow>
     );
     return (
         <FlatList
+            style={styles.container}
             data={configData}
             renderItem={renderItem}
             ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
             ListFooterComponent={
-                <Button
-                    style={styles.lastButton}
-                    buttonColor="#f194ff"
-                    textColor='white'
-                    onPress={() => toClean(true)}
-                >放入</Button>
+                <View>
+                    <Button style={styles.lastButton} buttonColor="#f194ff" onPress={() => dispatch(incrementByAmount({ token: 123 }))} >保存</Button>
+                </ View>
             }
-            />
-
+        />
     )
 }
 const styles = StyleSheet.create({
+    container: {
+        padding: 16,
+        backgroundColor: '#fff'
+    },
     lastButton: {
         marginBottom: 20,
     },
@@ -70,5 +118,29 @@ const styles = StyleSheet.create({
     pressedState: {
         transform: [{ scale: 0.98 }], // 按压缩放
         shadowOpacity: 0.5 // 阴影变化
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+        paddingVertical: 12,
+    },
+    label: {
+        width: 80,
+        fontSize: 16,
+        color: '#333',
+        marginRight: 8
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        color: '#333',
+        paddingVertical: 8,
+        paddingRight: 8
+    },
+    button: {
+        padding: 8,
+        marginLeft: 8
     },
 });

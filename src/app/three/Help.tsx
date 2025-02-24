@@ -21,13 +21,14 @@ const ContextView = ({ children }) => (
         {children}
     </Pressable>
 );
-const userClean = () => {
-    const param = useSelector(state => state.set);
-    console.log(param);
 
-}
 
 export default function Config() {
+    const param = useSelector(state => state.counter.counter.value);
+    const token = useSelector(state => state.counter.counter.token);
+    const userClean = () => {
+        console.log(token)
+    }
     const [configData, setProductList] = useState([])
     const renderItem = ({ item, index }) => (
         <ContextView><Text>{index}</Text></ContextView>
@@ -38,12 +39,15 @@ export default function Config() {
             renderItem={renderItem}
             ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
             ListFooterComponent={
-                <Button
-                    style={styles.lastButton}
-                    buttonColor="#f194ff"
-                    textColor='white'
-                    onPress={userClean}
-                >获取</Button>
+                <View>
+                    <Button
+                        style={styles.lastButton}
+                        buttonColor="#f194ff"
+                        textColor='white'
+                        onPress={userClean}
+                    >获取</Button>
+                    <Text style={{ fontSize: 30 }}>Count: {param}</Text>
+                </View>
             }
         />
     )

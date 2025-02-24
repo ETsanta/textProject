@@ -1,19 +1,34 @@
 // store/index.js
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './slices/userSlice';
-import appReducer from './slices/appSlice';
-import setConfig from './slices/setSlice';
+import { combineReducers } from 'redux'
+import { configureStore } from '@reduxjs/toolkit'
+import { persistStore, persistReducer } from 'redux-persist'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import counter from './slices/counter'
+import set from './slices/setSlice'
+
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+  whitelist: ['counter'], // 需要持久化的模块
+  timeout: 2000, // 超时设置（可选）
+  blacklist: ['set'] // 不需要持久化的模块（可选）
+}
+
+const rootReducer = combineReducers({
+  counter: counter,
+  set: set
+})
+
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
-    app: appReducer,
-    set: setConfig
+    counter: persistedReducer
   },
   middleware: (getDefaultMiddleware) => 
     getDefaultMiddleware({
-      serializableCheck: false // 关闭序列化警告（根据需求可选）
+      serializableCheck: false // 关闭序列化检查
     })
 })
 
-export default store
+export const persistor = persistStore(store)
