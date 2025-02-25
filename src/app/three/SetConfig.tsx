@@ -1,4 +1,4 @@
-import React, { useState, useRef, Children } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Pressable,
     StyleSheet,
@@ -7,21 +7,9 @@ import {
     View,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux'
-import { increment, decrement, reset, incrementByAmount } from '../../store/slices/counter'
-import { toPath, toClean } from "../../store/slices/setSlice"
+import { toPath, toClean, toPda } from "../../store/slices/setSlice"
 import { Button, Switch } from "react-native-paper"
 
-
-const ContextView = ({ children }) => (
-    <Pressable
-        android_ripple={{ color: '#eee' }}
-        style={({ pressed }) => [
-            pressed && styles.pressedState
-        ]}
-    >
-        {children}
-    </Pressable>
-);
 
 const FormRow: any = ({ children, label, onButtonPress, }) => {
     return (
@@ -32,47 +20,51 @@ const FormRow: any = ({ children, label, onButtonPress, }) => {
     );
 };
 
-
 export default function Config() {
+    const clean = useSelector(state => state.counter.set.clean)
+    const pda = useSelector(state => state.counter.set.pda)
+    const [isSwitchOn, setIsSwitchOn] = React.useState(false);
+    const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
+
     const [formData, setFormData] = useState({
-        clear: true,
-        show: false,
+        clear: clean,
+        show: pda,
     });
-    const count = useSelector(state => state.counter.counter.value)
     const dispatch = useDispatch()
-    
+
     const onClearSwitch = () => {
         setFormData(prev => {
-            console.log(prev);
             const newData = { ...prev, clear: !prev.clear };
-            console.log('更新过程:', newData.clear);
             return newData;
         });
-        console.log(formData.clear);
     };
     const onShowSwitch = () => {
-        setFormData(prev => ({
-            ...prev,
-            clear: !prev.show // 直接基于最新状态操作
-        }));
+        setFormData(prev => {
+            const newData = { ...prev, show: !prev.show };
+            return newData;
+        });
     };
     const [configData, setProductList] = useState([
         {
             title: '自动清除',
-            label: 'formData.clear',
+            label: (prev:any)=>{return prev.clear},
             func: onClearSwitch,
         },
         {
             title: '是否为PDA',
-            label: 'formData.show',
+            label: (prev:any)=>{return prev.show},
             func: onShowSwitch,
         }
     ])
     const renderItem = ({ item, index }) => (
         <FormRow
             label={item.title}
-        ><Switch value={item.label} onValueChange={item.func}></Switch></FormRow>
+        ><Switch value={item.label(formData)} onValueChange={item.func}></Switch></FormRow>
     );
+    function setSave() {
+        dispatch(toClean({'clean':formData.clear}))
+        dispatch(toPda({'pda':formData.show}))
+    }
     return (
         <FlatList
             style={styles.container}
@@ -81,7 +73,7 @@ export default function Config() {
             ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
             ListFooterComponent={
                 <View>
-                    <Button style={styles.lastButton} buttonColor="#f194ff" onPress={() => dispatch(incrementByAmount({ token: 123 }))} >保存</Button>
+                    <Button style={styles.lastButton} buttonColor="#f194ff" onPress={setSave} >保存</Button>
                 </ View>
             }
         />

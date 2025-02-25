@@ -24,10 +24,7 @@ const ContextView = ({ children }) => (
 
 
 export default function Config() {
-    const param = useSelector(state => state.counter.counter.value);
-    const token = useSelector(state => state.counter.counter.token);
     const userClean = () => {
-        console.log(token)
     }
     const [configData, setProductList] = useState([])
     const renderItem = ({ item, index }) => (
@@ -46,7 +43,6 @@ export default function Config() {
                         textColor='white'
                         onPress={userClean}
                     >获取</Button>
-                    <Text style={{ fontSize: 30 }}>Count: {param}</Text>
                 </View>
             }
         />
