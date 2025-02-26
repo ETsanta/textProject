@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useSelector } from 'react-redux';
+import QR from "../../components/QR"
 
 
 
@@ -24,8 +25,14 @@ const ContextView = ({ children }) => (
 
 
 export default function Config() {
-    const userClean = () => {
-    }
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanResult, setScanResult] = useState('');
+
+    const handleScanResult = (result) => {
+        setIsScanning(false);
+        setScanResult(result);
+        Alert.alert('扫码成功', result);
+    };
     const [configData, setProductList] = useState([])
     const renderItem = ({ item, index }) => (
         <ContextView><Text>{index}</Text></ContextView>
@@ -36,13 +43,23 @@ export default function Config() {
             renderItem={renderItem}
             ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
             ListFooterComponent={
-                <View>
-                    <Button
-                        style={styles.lastButton}
-                        buttonColor="#f194ff"
-                        textColor='white'
-                        onPress={userClean}
-                    >获取</Button>
+                <View style={{ flex: 1 }}>
+                    {isScanning ? (
+                        <BarcodeScanner
+                            onScan={handleScanResult}
+                            onClose={() => setIsScanning(false)}
+                        />
+                    ) : (
+                        <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
+                            <Button
+                                title="开始扫码"
+                                onPress={() => setIsScanning(true)}
+                            />
+                            {scanResult && (
+                                <Text style={{ marginTop: 20 }}>上次扫描结果: {scanResult}</Text>
+                            )}
+                        </View>
+                    )}
                 </View>
             }
         />

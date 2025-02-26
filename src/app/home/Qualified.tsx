@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, FlatList, Alert } from 'react-native';
 import { List, Button } from "react-native-paper"
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useSelector, useDispatch } from 'react-redux'
 
 // 可复用的表单项组件
 const FormRow: any = ({ label, value, onChangeText, onButtonPress, icon = 'center-focus-weak', showButton = true }) => {
@@ -33,6 +34,8 @@ const Qualified = () => {
         workStationCode: '',
         shelvesCode: '',
     });
+
+    const IzClean = useSelector(state => state.counter.set.clean)
     const [productList, setProductList] = useState(['123', '234', '345'])
 
     const [AccordionFlag, setAccordionFlag] = useState(true);
@@ -65,8 +68,21 @@ const Qualified = () => {
             </TouchableOpacity>
         </View>
     );
-    function productScreen(){
+    function productScreen() {
         Alert.alert('扫码正在开发中。。。')
+    }
+    function sumbitQualified() {
+        clean()
+    }
+    function clean() {
+        if (IzClean) {
+            setShelveForm({ workOrderCode: '', productCode: '', productStatus: '', materialCode: '' })
+            setFormData({
+                workStationCode: '',
+                shelvesCode: '',
+            })
+            setProductList([])
+        }
     }
     return (
         <FlatList
@@ -108,7 +124,7 @@ const Qualified = () => {
                     style={styles.lastButton}
                     buttonColor="#f194ff"
                     textColor='white'
-                    onPress={() => Alert.alert('到此为止了。')}
+                    onPress={sumbitQualified}
                 >确认</Button>
             } />
     );

@@ -6,6 +6,8 @@ import {
     Text,
     FlatList,
     View,
+    PermissionsAndroid,
+    Button
 } from 'react-native';
 
 
@@ -27,6 +29,22 @@ export default function Config() {
     );
     return (
         <FlatList
+            ListHeaderComponent={<>
+                <View>
+                    <Button title='测试按钮' onPress={async () => {
+                        const granted = await PermissionsAndroid.request(
+                            PermissionsAndroid.PERMISSIONS.CAMERA,
+                        );
+                        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                            console.log('你现在已经有了摄像头的权限');
+                        } else {
+                            console.log('拒绝');
+                            return
+                        }
+                    }} />
+                    {/* <QR></QR> */}
+                </View>
+            </>}
             data={configData}
             renderItem={renderItem}
             ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>} />
