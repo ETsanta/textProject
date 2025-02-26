@@ -5964,10 +5964,20 @@ react-is@^19.0.0:
   resolved "https://registry.npmmirror.com/react-is/-/react-is-19.0.0.tgz"
   integrity sha512-H91OHcwjZsbq3ClIDHMzBShc1rotbfACdWENsmEf0IFvZ3FgGPtdHMcsv45bQ1hAbgdfiA8SnxTKfDS+x/8m2g==
 
+react-native-camera-kit@^14.2.0:
+  version "14.2.0"
+  resolved "https://registry.npmmirror.com/react-native-camera-kit/-/react-native-camera-kit-14.2.0.tgz#69fec729cfc9d40dc3904098965c6a2bf56b444f"
+  integrity sha512-rPk/4Ux52/Kc6oIPk0x6NsrvDkeL+kd/GAUJ4xBtTlnmiWjLTgeA2Vjgg9ik03mmyf6rV+LaqaOBT7KejhuHKQ==
+
 react-native-config@^1.5.5:
   version "1.5.5"
   resolved "https://registry.npmmirror.com/react-native-config/-/react-native-config-1.5.5.tgz"
   integrity sha512-dGdLnBU0cd5xL5bF0ROTmHYbsstZnQKOEPfglvZi1vStvAjpld14X25K6mY3KGPTMWAzx6TbjKeq5dR+ILuMMA==
+
+react-native-device-info@^14.0.4:
+  version "14.0.4"
+  resolved "https://registry.npmmirror.com/react-native-device-info/-/react-native-device-info-14.0.4.tgz#56b24ace9ff29a66bdfc667209086421ed6cfdce"
+  integrity sha512-NX0wMAknSDBeFnEnSFQ8kkAcQrFHrG4Cl0mVjoD+0++iaKrOupiGpBXqs8xR0SeJyPC5zpdPl4h/SaBGly6UxA==
 
 react-native-gesture-handler@^2.23.0:
   version "2.23.0"

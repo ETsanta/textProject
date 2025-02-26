@@ -1,108 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Camera, useCameraDevices } from 'react-native-vision-camera';
-import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
-import { useIsFocused } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Camera, CameraType } from 'react-native-camera-kit';
+import DeviceInfo from 'react-native-device-info';
 
-export default function BarcodeScanner({ onScan, onClose }) {
-  const [hasPermission, setHasPermission] = useState(false);
-  const devices = useCameraDevices();
-  const device = devices.back;
-  const isFocused = useIsFocused();
+const App = () => {
+  const [isFlashOn, setIsFlashOn] = useState(false);
+  const [hasFlash, setHasFlash] = useState(false);
 
-  // 扫码配置：支持二维码和常见一维码
-  const [frameProcessor, barcodes] = useScanBarcodes([
-    BarcodeFormat.QR_CODE,
-    BarcodeFormat.CODE_128,
-    BarcodeFormat.EAN_13,
-  ], {
-    checkInverted: true,
-  });
-
-  // 处理扫码结果（防抖）
+  // 在组件加载时检查设备是否支持闪光灯
   useEffect(() => {
-    if (barcodes.length > 0 && isFocused) {
-      onScan(barcodes[0].content);
-    }
-  }, [barcodes, onScan, isFocused]);
-
-  // 请求相机权限
-  useEffect(() => {
-    (async () => {
-      const status = await Camera.requestCameraPermission();
-      setHasPermission(status === 'authorized');
-    })();
+    checkFlashSupport();
   }, []);
 
-  if (!hasPermission || !device || !isFocused) {
-    return <View style={styles.container}><Text>正在请求权限...</Text></View>;
-  }
+  // 检查设备是否支持闪光灯
+  const checkFlashSupport = async () => {
+    console.log(DeviceInfo);
+    const model = await DeviceInfo.getModel();
+    const unsupportedDevices = ['iPhone SE', 'iPhone 5s', 'iPhone 5c']; // 不支持闪光灯的设备列表
+    setHasFlash(!unsupportedDevices.includes(model));
+  };
+
+  // 切换闪光灯状态
+  const toggleFlash = () => {
+    if (hasFlash) {
+      setIsFlashOn(!isFlashOn);
+    }
+  };
+
+  // 处理扫码结果
+  const onBarcodeScan = (event) => {
+    const barcodeValue = event.nativeEvent.codeStringValue;
+    alert(`Scanned barcode: ${barcodeValue}`);
+  };
 
   return (
     <View style={styles.container}>
       <Camera
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-        frameProcessor={frameProcessor}
-        frameProcessorFps={5}
-        torch="off"
-        orientation="portrait"
+        style={styles.camera}
+        cameraType={CameraType.Back} // 使用后置摄像头
+        scanBarcode={true}
+        onReadCode={onBarcodeScan}
+        torchMode={isFlashOn ? 'on' : 'off'} // 通过属性控制闪光灯
       />
-      
-      {/* 自定义扫码框 UI */}
-      <View style={styles.overlay}>
-        <View style={styles.border} />
-        <Text style={styles.scanText}>将二维码/条码放入框内</Text>
-      </View>
-
-      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-        <Text style={styles.closeText}>×</Text>
-      </TouchableOpacity>
+      {hasFlash && (
+        <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
+          <Text style={styles.flashButtonText}>
+            {isFlashOn ? '开灯' : '关灯'}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
   },
-  overlay: {
+  camera: {
+    flex: 1,
+  },
+  flashButton: {
     position: 'absolute',
-    top: '30%',
-    left: '20%',
-    right: '20%',
-    bottom: '30%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  border: {
-    width: '100%',
-    height: '100%',
-    borderWidth: 2,
-    borderColor: '#00FF00',
+    bottom: 20,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 15,
     borderRadius: 10,
   },
-  scanText: {
+  flashButtonText: {
     color: 'white',
-    marginTop: 20,
     fontSize: 16,
   },
-  closeButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeText: {
-    color: 'white',
-    fontSize: 30,
-    lineHeight: 35,
-  }
 });
+
+export default App;
