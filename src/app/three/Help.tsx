@@ -22,7 +22,7 @@ export default function ScanScreen() {
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
           <Button 
-            title="开始扫码" 
+            title="扫码" 
             onPress={() => setIsScanning(true)}
           />
           {scanResult && (
