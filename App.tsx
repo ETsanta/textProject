@@ -24,7 +24,7 @@ const Stack = createStackNavigator(); //基础路由
 export default function App(): React.JSX.Element {
   return (
     <Provider store={store}>
-      <PersistGate loading={<Text>加载持久数据...</Text>} persistor={persistor}>
+      <PersistGate loading={<Text style={{flex:1, textAlign: 'center', justifyContent: 'center'}}>加载持久数据...</Text>} persistor={persistor}>
       <NavigationContainer>
         <Stack.Navigator mode="modal">
           <Stack.Screen name="Home" options={{ title: '主体', headerShown: false }} component={BottomTabNavigator} />

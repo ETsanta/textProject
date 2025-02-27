@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Children } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, FlatList, Alert } from 'react-native';
-import { List, Card, Button } from "react-native-paper"
+import { Button, Dialog } from "react-native-paper"
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import BarcodeScanner from '../../components/Analyst';
 
-// 可复用的表单项组件
+
 const FormRow: any = ({ label, value, onChangeText, onButtonPress, icon = 'center-focus-weak', showButton = true }) => {
     const inputRef: any = useRef(null);
     return (
@@ -27,15 +28,34 @@ const FormRow: any = ({ label, value, onChangeText, onButtonPress, icon = 'cente
         </View>
     );
 };
+const FormButton: any = ({ children, label }) => {
+    return (
+        <View style={styles.rowContainer}>
+            <Text style={styles.label}>{label}</Text>
+            {children}
+        </View>
+    );
+};
 const Unqualified = () => {
-    const [shelveForm, setShelveForm] = useState({ workOrderCode: '1000050608', productCode: '200001506', productStatus: '3', materialCode: '3' }); // 初始化表单数据
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanResult, setScanResult] = useState('');
+    const handleScanResult = (result: any) => {
+        setIsScanning(false);
+        const param = productList.filter((item) => item == result);
+        if(param.length){
+            Alert.alert('请勿重复扫描', result)
+            setVisible(false)
+            return;
+        }
+        setScanResult(result);
+        setVisible(true);
+    };
     const [formData, setFormData] = useState({
         workStationCode: '',
         shelvesCode: '',
     });
-    const [productList, setProductList] = useState(['123', '234', '345'])
+    const [productList, setProductList] = useState<string[]>([])
 
-    const [AccordionFlag, setAccordionFlag] = useState(true);
     const confirmDelete = (item: any, index: any) => {
         Alert.alert(
             '删除确认',
@@ -65,41 +85,76 @@ const Unqualified = () => {
             </TouchableOpacity>
         </View>
     );
-    function productScreen(){
-        Alert.alert('扫码正在开发中。。。')
+    function productScreen() {
+        setIsScanning(true)
+    }
+    const [visible, setVisible] = useState(false)
+    const hideDialog = () => setVisible(false)
+    const setList = () => {
+        setProductList([...productList, scanResult])
+        setVisible(false)
     }
     return (
-        <FlatList
-            style={styles.container}
-            ListHeaderComponent={<>
-                <FormRow
-                    label="工位条码"
-                    value={formData.workStationCode}
-                    onChangeText={(text: string) => setFormData({ ...formData, workStationCode: text })}
-                    showButton={false}
+        <View style={{ flex: 1 }}>
+            {isScanning ? (
+                <BarcodeScanner
+                    getScanResult={handleScanResult}
                 />
-                <FormRow
-                    label="产品列表"
-                    value={formData.shelvesCode}
-                    onChangeText={(text: string) => setFormData({ ...formData, shelvesCode: text })}
-                    icon="fit-screen"
-                    onButtonPress={productScreen}
-                />
-            </>}
-            data={productList}
-            renderItem={renderItem}
-            ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
-            ListFooterComponent={
-                <Button
-                    style={styles.lastButton}
-                    buttonColor="#f194ff"
-                    textColor='white'
-                    onPress={() => Alert.alert('到此为止了。')}
-                >确认</Button>
-            } />
+            ) : (
+                <FlatList
+                    style={styles.container}
+                    ListHeaderComponent={<>
+                        <FormRow
+                            label="工位条码"
+                            value={formData.workStationCode}
+                            onChangeText={(text: string) => setFormData({ ...formData, workStationCode: text })}
+                            showButton={false}
+                        />
+                        <FormButton
+                            label="产品列表"
+                        ><TouchableOpacity style={styles.flashButton} onPress={productScreen}>
+                                <Text style={{ alignItems: 'center', width: '100%', textAlign: 'center' }}>
+                                    <Icon name={"add"} size={24} color='#f194ff' />
+                                </Text>
+                            </TouchableOpacity></FormButton>
+                    </>}
+                    data={productList}
+                    renderItem={renderItem}
+                    ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
+                    ListFooterComponent={
+                        <View>
+                            <Button
+                                style={styles.lastButton}
+                                buttonColor="#f194ff"
+                                textColor='white'
+                                onPress={() => Alert.alert('到此为止了。')}
+                            >确认</Button>
+                        </View>
+                    } />
+            )}
+            <Dialog visible={visible} onDismiss={hideDialog}>
+                <Dialog.Title>扫码结果</Dialog.Title>
+                <Dialog.Content>
+                    <Text variant="bodyMedium">产品编号：{scanResult}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => console.log('取消')}>取消</Button>
+                    <Button onPress={setList}>确认</Button>
+                </Dialog.Actions>
+            </Dialog>
+        </View>
     );
 };
 const styles = StyleSheet.create({
+    flashButton: {
+        width: '65%',
+        borderStyle: 'dashed',
+        borderWidth: 1,
+        borderColor: '#f194ff',
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+    },
     lastButton: {
         marginBottom: 20,
     },
@@ -115,7 +170,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     label: {
-        width: 80,
+        width: '30%',
         fontSize: 16,
         color: '#333',
         marginRight: 8

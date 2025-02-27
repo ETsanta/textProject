@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 import DeviceInfo from 'react-native-device-info';
-import { Dialog, Button, Portal } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const App = () => {
+const App = ({ getScanResult }) => {
     const [isFlashOn, setIsFlashOn] = useState(false);
     const [hasFlash, setHasFlash] = useState(false);
     const [scanBarcode, setScanBarcode] = useState(true);
-    const [ScanResult, setScanResult] = useState<string | null>(null);
-    const [visible, setVisible] = useState(false);
-    const hideDialog = () => { setVisible(false), setScanBarcode(true) };
+
     // 在组件加载时检查设备是否支持闪光灯
     useEffect(() => {
         checkFlashSupport();
@@ -25,7 +23,6 @@ const App = () => {
     };
     const openResult = () => {
         setScanBarcode(false);
-        setVisible(true);
     };
     // 切换闪光灯状态
     const toggleFlash = () => {
@@ -37,7 +34,7 @@ const App = () => {
     // 处理扫码结果
     const onBarcodeScan = (event: any) => {
         const barcodeValue = event.nativeEvent.codeStringValue;
-        setScanResult(barcodeValue);
+        getScanResult(barcodeValue);
         openResult()
     };
 
@@ -53,19 +50,10 @@ const App = () => {
             {hasFlash && (
                 <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
                     <Text style={styles.flashButtonText}>
-                        {isFlashOn ? '关灯' : '开灯'}
+                        <Icon name={isFlashOn ? 'flashlight-off' : 'flashlight-on'} size={36} color={isFlashOn ? '#00dd27' : 'white'} />
                     </Text>
                 </TouchableOpacity>
             )}
-            <Dialog visible={visible} onDismiss={hideDialog}>
-                <Dialog.Title>扫码结果</Dialog.Title>
-                <Dialog.Content>
-                    <Text variant="bodyMedium">{ScanResult}</Text>
-                </Dialog.Content>
-                <Dialog.Actions>
-                    <Button onPress={hideDialog}>好的</Button>
-                </Dialog.Actions>
-            </Dialog>
         </View>
     );
 };
@@ -81,13 +69,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         alignSelf: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
         padding: 15,
         borderRadius: 10,
     },
     flashButtonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 24,
     },
 });
 

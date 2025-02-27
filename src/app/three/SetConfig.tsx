@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     label: {
-        width: 80,
+        width: 150,
         fontSize: 16,
         color: '#333',
         marginRight: 8
