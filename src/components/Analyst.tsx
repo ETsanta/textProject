@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { RNCamera } from'react-native-camera';
 
 const App = ({ getScanResult }) => {
     const [isFlashOn, setIsFlashOn] = useState(false);

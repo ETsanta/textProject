@@ -10,7 +10,7 @@ const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   whitelist: ['counter'], // 需要持久化的模块
-  timeout: 2000, // 超时设置（可选）
+  timeout: 5000, // 超时设置（可选）
   blacklist: ['set'] // 不需要持久化的模块（可选）
 }
 

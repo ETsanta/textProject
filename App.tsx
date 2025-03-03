@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Window from './src/app/home/Window';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PersistGate } from 'redux-persist/integration/react'
@@ -24,7 +23,7 @@ const Stack = createStackNavigator(); //基础路由
 export default function App(): React.JSX.Element {
   return (
     <Provider store={store}>
-      <PersistGate loading={<Text style={{flex:1, textAlign: 'center', justifyContent: 'center'}}>加载持久数据...</Text>} persistor={persistor}>
+      <PersistGate loading={<Window />} persistor={persistor}>
       <NavigationContainer>
         <Stack.Navigator mode="modal">
           <Stack.Screen name="Home" options={{ title: '主体', headerShown: false }} component={BottomTabNavigator} />

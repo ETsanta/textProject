@@ -3,28 +3,14 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, FlatLi
 import { Button, Dialog } from "react-native-paper"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BarcodeScanner from '../../components/Analyst';
+import Select from "../../components/Select";
 
 
-const FormRow: any = ({ label, value, onChangeText, onButtonPress, icon = 'center-focus-weak', showButton = true }) => {
-    const inputRef: any = useRef(null);
+const FormRow: any = ({ children, label }) => {
     return (
         <View style={styles.rowContainer}>
             <Text style={styles.label}>{label}</Text>
-            <TextInput
-                ref={inputRef}
-                style={styles.input}
-                value={value}
-                onChangeText={onChangeText}
-                placeholder={`请输入${label}`}
-            />
-            {showButton && (
-                <TouchableOpacity onPress={() => {
-                    onButtonPress(); // 执行按钮逻辑
-                    // inputRef.current.focus(); // 聚焦输入框
-                }} style={styles.button}>
-                    <Icon name={icon} size={20} color="#666" />
-                </TouchableOpacity>
-            )}
+            {children}
         </View>
     );
 };
@@ -42,7 +28,7 @@ const Unqualified = () => {
     const handleScanResult = (result: any) => {
         setIsScanning(false);
         const param = productList.filter((item) => item == result);
-        if(param.length){
+        if (param.length) {
             Alert.alert('请勿重复扫描', result)
             setVisible(false)
             return;
@@ -52,7 +38,6 @@ const Unqualified = () => {
     };
     const [formData, setFormData] = useState({
         workStationCode: '',
-        shelvesCode: '',
     });
     const [productList, setProductList] = useState<string[]>([])
 
@@ -94,6 +79,15 @@ const Unqualified = () => {
         setProductList([...productList, scanResult])
         setVisible(false)
     }
+    const [selectVisible, setSelectVisible] = useState(false)
+    const onChangeText = (text: string) => {
+        setFormData(prevState => ({ ...prevState, workStationCode: text }));
+    }
+    function getSelectValue(params: any) {
+        setFormData(prevState => ({ ...prevState, workStationCode: params }))
+    }
+    const [labels, setLabels] = useState<string[]>(['10001', '10002', '10003'])
+
     return (
         <View style={{ flex: 1 }}>
             {isScanning ? (
@@ -101,36 +95,41 @@ const Unqualified = () => {
                     getScanResult={handleScanResult}
                 />
             ) : (
-                <FlatList
-                    style={styles.container}
-                    ListHeaderComponent={<>
-                        <FormRow
-                            label="工位条码"
-                            value={formData.workStationCode}
-                            onChangeText={(text: string) => setFormData({ ...formData, workStationCode: text })}
-                            showButton={false}
-                        />
-                        <FormButton
-                            label="产品列表"
-                        ><TouchableOpacity style={styles.flashButton} onPress={productScreen}>
-                                <Text style={{ alignItems: 'center', width: '100%', textAlign: 'center' }}>
-                                    <Icon name={"add"} size={24} color='#f194ff' />
-                                </Text>
-                            </TouchableOpacity></FormButton>
-                    </>}
-                    data={productList}
-                    renderItem={renderItem}
-                    ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
-                    ListFooterComponent={
-                        <View>
-                            <Button
-                                style={styles.lastButton}
-                                buttonColor="#f194ff"
-                                textColor='white'
-                                onPress={() => Alert.alert('到此为止了。')}
-                            >确认</Button>
-                        </View>
-                    } />
+                <View>
+                    <FlatList
+                        style={styles.container}
+                        ListHeaderComponent={<>
+                            <FormRow
+                                label="工位条码"
+                            >
+                                <Text
+                                    onPress={() => setSelectVisible(!selectVisible)}
+                                    style={styles.input}
+                                >{formData.workStationCode}</Text>
+                            </FormRow>
+                            <FormButton
+                                label="产品列表"
+                            ><TouchableOpacity style={styles.flashButton} onPress={productScreen}>
+                                    <Text style={{ alignItems: 'center', width: '100%', textAlign: 'center' }}>
+                                        <Icon name={"add"} size={24} color='#f194ff' />
+                                    </Text>
+                                </TouchableOpacity></FormButton>
+                        </>}
+                        data={productList}
+                        renderItem={renderItem}
+                        ListEmptyComponent={<Text style={styles.emptyText}>没有数据</Text>}
+                        ListFooterComponent={
+                            <View>
+                                <Button
+                                    style={styles.lastButton}
+                                    buttonColor="#f194ff"
+                                    textColor='white'
+                                    onPress={() => Alert.alert('到此为止了。')}
+                                >确认</Button>
+                            </View>
+                        } />
+                </View>
+
             )}
             <Dialog visible={visible} onDismiss={hideDialog}>
                 <Dialog.Title>扫码结果</Dialog.Title>
@@ -138,10 +137,11 @@ const Unqualified = () => {
                     <Text variant="bodyMedium">产品编号：{scanResult}</Text>
                 </Dialog.Content>
                 <Dialog.Actions>
-                    <Button onPress={() => console.log('取消')}>取消</Button>
+                    <Button onPress={() => setVisible(false)}>取消</Button>
                     <Button onPress={setList}>确认</Button>
                 </Dialog.Actions>
             </Dialog>
+            {selectVisible && <Select visible={selectVisible} labels={labels} onChildEvent={getSelectValue} value={formData.workStationCode}></Select>}
         </View>
     );
 };
