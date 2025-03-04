@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, NativeModules } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { RNCamera } from'react-native-camera';
+
+const { FlashModule } = NativeModules;
 
 const App = ({ getScanResult }) => {
     const [isFlashOn, setIsFlashOn] = useState(false);
@@ -17,10 +18,18 @@ const App = ({ getScanResult }) => {
 
     // 检查设备是否支持闪光灯
     const checkFlashSupport = async () => {
-        console.log(DeviceInfo);
-        const model = await DeviceInfo.getModel();
-        const unsupportedDevices = ['iPhone SE', 'iPhone 5s', 'iPhone 5c']; // 不支持闪光灯的设备列表
-        setHasFlash(!unsupportedDevices.includes(model));
+        console.log("XXXXXXXXXXXX");
+        const hasFlash = await FlashModule.hasFlash();
+        console.log("FlashlightManager",hasFlash);
+        
+        if (hasFlash) {
+            setHasFlash(true);
+        }else{
+            setHasFlash(false);
+        }
+        // const model = await DeviceInfo.getModel();
+        // const unsupportedDevices = ['iPhone SE', 'iPhone 5s', 'iPhone 5c']; // 不支持闪光灯的设备列表
+        // setHasFlash(!unsupportedDevices.includes(model));
     };
     const openResult = () => {
         setScanBarcode(false);
@@ -31,6 +40,7 @@ const App = ({ getScanResult }) => {
             setIsFlashOn(!isFlashOn);
         }
     };
+    const crameRef = React.useRef(CameraType);
 
     // 处理扫码结果
     const onBarcodeScan = (event: any) => {
@@ -42,6 +52,7 @@ const App = ({ getScanResult }) => {
     return (
         <View style={styles.container}>
             <Camera
+                ref={crameRef}
                 style={styles.camera}
                 cameraType={CameraType.Back} // 使用后置摄像头
                 scanBarcode={scanBarcode}
