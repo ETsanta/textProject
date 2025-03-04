@@ -6,9 +6,10 @@ import {
     FlatList,
     View,
 } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux'
-import { toPath, toClean, toPda } from "../../store/slices/setSlice"
-import { Button, Switch } from "react-native-paper"
+import { useSelector, useDispatch } from 'react-redux';
+import { toPath, toClean, toPda } from "../../store/slices/setSlice";
+import { Button, Switch } from "react-native-paper";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const FormRow: any = ({ children, label, onButtonPress, }) => {
@@ -20,15 +21,39 @@ const FormRow: any = ({ children, label, onButtonPress, }) => {
     );
 };
 
+let Clear = false;
+let Pda = false;
+
+AsyncStorage.getItem('clear')
+    .then(value => {
+        console.log("clear", value);
+        Clear = (value == "1" ? true : false);
+        console.log("Clear", Clear);
+    })
+    .catch(error => {
+        console.error('Error loading data:', error);
+    });
+AsyncStorage.getItem('pda')
+    .then(value => {
+        console.log("pda", value);
+        Pda = (value == "1" ? true : false);
+        console.log("Pda", Pda);
+    })
+    .catch(error => {
+        console.error('Error loading data:', error);
+    });
+
+
 export default function Config() {
     const clean = useSelector(state => state.counter.set.clean)
     const pda = useSelector(state => state.counter.set.pda)
+
     const [isSwitchOn, setIsSwitchOn] = React.useState(false);
     const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
     const [formData, setFormData] = useState({
-        clear: clean,
-        show: pda,
+        clear: Clear,
+        show: Pda,
     });
     const dispatch = useDispatch()
 
@@ -47,12 +72,12 @@ export default function Config() {
     const [configData, setProductList] = useState([
         {
             title: '自动清除',
-            label: (prev:any)=>{return prev.clear},
+            label: (prev: any) => { return prev.clear },
             func: onClearSwitch,
         },
         {
             title: '是否为PDA',
-            label: (prev:any)=>{return prev.show},
+            label: (prev: any) => { return prev.show },
             func: onShowSwitch,
         }
     ])
@@ -62,8 +87,14 @@ export default function Config() {
         ><Switch value={item.label(formData)} onValueChange={item.func}></Switch></FormRow>
     );
     function setSave() {
-        dispatch(toClean({'clean':formData.clear}))
-        dispatch(toPda({'pda':formData.show}))
+        // dispatch(toClean({ 'clean': formData.clear }))
+        // dispatch(toPda({ 'pda': formData.show }))
+        console.log("clean", formData.clear, formData.show);
+        AsyncStorage.setItem('clear', formData.clear ? "1" : "0");
+        AsyncStorage.setItem('pda', formData.show ? "1" : "0");
+        Clear = formData.clear;
+        Pda = formData.show;
+
     }
     return (
         <FlatList
