@@ -94,7 +94,6 @@ export default function Config() {
         AsyncStorage.setItem('pda', formData.show ? "1" : "0");
         Clear = formData.clear;
         Pda = formData.show;
-
     }
     return (
         <FlatList

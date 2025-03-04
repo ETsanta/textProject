@@ -11,7 +11,6 @@ export function SetStorage(key, value) {
         });
 }
 
-
 // 读取数据
 AsyncStorage.getItem('key')
     .then(value => {
